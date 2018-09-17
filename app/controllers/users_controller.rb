@@ -4,7 +4,11 @@ class UsersController < ApplicationController
   before_action :admin_user,     only: [:destroy]
   
   def index
-    @q = User.ransack(search_params)
+    if params[:q]
+      @q = User.ransack(search_params)
+    else
+      @q = User.ransack
+    end 
     @users = @q.result.paginate(page: params[:page])
   end 
   
@@ -80,7 +84,7 @@ class UsersController < ApplicationController
   
     def search_params
       params.require(:q).permit(:name_cont)
-    end 
+    end
   
     def user_params
       params.require(:user).permit(:name, :email, :password, :password_confirmation)
