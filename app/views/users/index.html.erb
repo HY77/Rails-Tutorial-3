@@ -1,6 +1,10 @@
 <% provide(:title, "All users") %>
 <h1>Users</h1>
 
+<div class="row">
+  <%= render "search_form" %>
+</div>
+
 <%= will_paginate @users %>
 
 <ul class="users">

@@ -1,14 +1,15 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:index, :edit, :update, :destroy, :following, :followers]
+  before_action :logged_in_user, only: [:index, :edit, :update, :destroy, :following, :followers, :following, :followers]
   before_action :correct_user,   only: [:edit, :update]
   before_action :admin_user,     only: [:destroy]
   
   def index
-    @users = User.paginate(page: params[:page])
+    @q = User.ransack(search_params)
+    @users = @q.result.paginate(page: params[:page])
   end 
   
   def show
-    @user       = User.find(params[:id])
+    @user        = User.find(params[:id])
     @microposts = @user.microposts.paginate(page: params[:page])
   end 
   
@@ -58,10 +59,28 @@ class UsersController < ApplicationController
     @title = "Followers"
     @user  = User.find_by(params[:id])
     @users = @user.followers.paginate(page: params[:page])
+    render "show"
+  end 
+  
+  def following
+    @title = "Following"
+    @user  = User.find(params[:id])
+    @users = @user.following.paginate(page: params[:page])
+    render "show_follow"
+  end 
+  
+  def followers
+    @title = "Followers"
+    @user  = User.find_by(params[:id])
+    @users = @user.followers.paginate(page: params[:page])
     render "show_follow"
   end 
   
   private
+  
+    def search_params
+      params.require(:q).permit(:name_cont)
+    end 
   
     def user_params
       params.require(:user).permit(:name, :email, :password, :password_confirmation)
