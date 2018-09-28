@@ -10,11 +10,21 @@ class User < ApplicationRecord
                              source: "followed"
   has_many      :followers, through: "passive_relationships",
                              source: "follower"
+  has_many      :from_messages,         class_name: "Message",
+                                       foreign_key: :from_id,
+                                         dependent: :destroy
+  has_many      :to_messages,           class_name: "Message",
+                                       foreign_key: :to_id,
+                                         dependent: :destroy
+  has_many      :sent_messages,    through: :from_messages,
+                                    source: :from
+  has_many      :received_mesages, through: :to_mesasges,
+                                    source: :to
   attr_accessor :remember_token, :activation_token, :reset_token
   before_save   :downcase_email
   before_create :create_activation_digest
   
-  validates :name,  presence: true, length: { maximum: 50 }
+  validates :name,  presence: true, length: { maximum: 50 }, uniqueness: true
   VALID_EMAIL_REGEX =/\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates :email, presence: true, length: { maximum: 255 },
                     format: { with: VALID_EMAIL_REGEX },
